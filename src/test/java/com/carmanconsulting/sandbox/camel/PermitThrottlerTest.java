@@ -61,14 +61,14 @@ public class PermitThrottlerTest extends JmsTestCase {
                 final MBeanServer server = ManagementFactory.getPlatformMBeanServer();
                 final ObjectName name = new ObjectName("com.carmanconsulting.sandbox.camel:type=SemaphoreThrottlingEngine");
                 server.registerMBean(engine, name);
-                final SimpleBuilder correlationIdExpression = simple("${header[group]}");
+                final SimpleBuilder throttlingGroupExpression = simple("${header[group]}");
                 from("jms:queue:input")
-                        .process(new AcquirePermitProcessor(correlationIdExpression, engine))
+                        .process(new AcquirePermitProcessor(throttlingGroupExpression, engine))
                         .choice()
-                        .when(header(PERMITTED_HEADER)).to("jms:queue:output")
+                        .when(header(PERMITTED_HEADER)).setHeader("JMSCorrelationID", throttlingGroupExpression).to("jms:queue:output")
                         .otherwise().to("jms:queue:input");
                 from("jms:queue:output?concurrentConsumers=20").process(new RandomProcessor(1000, 2000)).to("log:processed?showAll=true&multiline=true&level=INFO").to("jms:queue:release");
-                from("jms:queue:release").process(new ReleasePermitProcessor(correlationIdExpression, engine));
+                from("jms:queue:release").process(new ReleasePermitProcessor(throttlingGroupExpression, engine));
             }
         };
     }
