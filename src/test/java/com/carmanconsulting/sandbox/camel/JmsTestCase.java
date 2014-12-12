@@ -1,6 +1,7 @@
 package com.carmanconsulting.sandbox.camel;
 
 import com.carmanconsulting.sandbox.camel.jms.LoggingConnectionFactory;
+import com.carmanconsulting.sandbox.camel.jms.LoggingPooledConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
@@ -38,7 +39,16 @@ public abstract class JmsTestCase extends CamelTestCase
     }
 
     protected JmsConfiguration createJmsConfiguration() {
-        return new JmsConfiguration(createConnectionFactory());
+        final ConnectionFactory factory = createConnectionFactory();
+        final LoggingPooledConnectionFactory pooled = new LoggingPooledConnectionFactory();
+        pooled.setConnectionFactory(factory);
+
+        final JmsConfiguration configuration = new JmsConfiguration(pooled);
+
+        configuration.setListenerConnectionFactory(factory);
+
+
+        return configuration;
     }
 
     protected String getBrokerUrl() {

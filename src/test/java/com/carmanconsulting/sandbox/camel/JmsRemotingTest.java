@@ -19,6 +19,7 @@ public class JmsRemotingTest extends JmsTestCase {
         final Endpoint endpoint = context.getEndpoint("direct:service");
         final MyService proxy = ProxyHelper.createProxy(endpoint, MyService.class);
         assertEquals("foo - hello", proxy.foo(new Request("hello")));
+        assertEquals("bar - hello", proxy.bar(new Request("hello")));
     }
 
     @Override
