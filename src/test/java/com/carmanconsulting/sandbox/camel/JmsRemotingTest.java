@@ -11,6 +11,8 @@ import org.apache.camel.component.bean.ProxyHelper;
 import org.apache.camel.impl.SimpleRegistry;
 import org.junit.Test;
 
+import javax.xml.ws.Service;
+
 public class JmsRemotingTest extends JmsTestCase {
 //----------------------------------------------------------------------------------------------------------------------
 // Other Methods
@@ -38,13 +40,18 @@ public class JmsRemotingTest extends JmsTestCase {
                         .to("jms:queue:service?requestTimeout=500")
                         .process(new GsonDeserializer(gson, Response.class));
                 from("jms:queue:service")
+                        .onException(Exception.class).setHeader("EXCEPTION_MESSAGE", exceptionMessage()).setBody(constant("")).end()
                         .process(new GsonDeserializer(gson, Request.class))
+                        .doTry()
                         .bean(new EchoService())
-                        .process(new GsonSerializer(gson, Response.class));
+                        .process(new GsonSerializer(gson, Response.class))
+                        .doCatch(Exception.class)
+                        .setHeader("EXCEPTION_MESSAGE", exceptionMessage()).setBody(constant(""))
+                        .end()
+                        .to("log:afterService?level=INFO&multiline=true&showAll=true");
             }
         };
     }
-
 
     @Override
     protected void doBindings(SimpleRegistry registry) {
@@ -59,11 +66,17 @@ public class JmsRemotingTest extends JmsTestCase {
         assertEquals("bar - hello", proxy.bar(new BarRequest("hello")).getValue());
     }
 
-    @Test(expected = ExchangeTimedOutException.class)
+    @Test
     public void testWithException() throws Exception {
         final Endpoint endpoint = context.getEndpoint("direct:service");
         final MyService proxy = ProxyHelper.createProxy(endpoint, MyService.class);
-        final FooResponse response = proxy.foo(new FooRequest("bogus"));
+        try {
+            proxy.foo(new FooRequest("bogus"));
+            fail("Should throw exception!");
+        }
+        catch(ServiceException e) {
+            assertEquals("Not gonna do it!", e.getMessage());
+        }
     }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -86,7 +99,7 @@ public class JmsRemotingTest extends JmsTestCase {
         @Override
         public FooResponse foo(FooRequest request) {
             logger.info("Processing foo request...");
-            if("bogus".equals(request.getValue())) {
+            if ("bogus".equals(request.getValue())) {
                 throw new IllegalArgumentException("Not gonna do it!");
             }
             return new FooResponse("foo - " + request);
@@ -123,7 +136,12 @@ public class JmsRemotingTest extends JmsTestCase {
         @Override
         public void process(Exchange exchange) throws Exception {
             logger.info("Deserializing in body to {} object...", type.getCanonicalName());
-            exchange.getIn().setBody(gson.fromJson(exchange.getIn().getBody(String.class), type));
+
+            final String body = exchange.getIn().getBody(String.class);
+            if ("".equals(body)) {
+                throw new ServiceException(exchange.getIn().getHeader("EXCEPTION_MESSAGE").toString());
+            }
+            exchange.getIn().setBody(gson.fromJson(body, type));
         }
     }
 
@@ -184,6 +202,12 @@ public class JmsRemotingTest extends JmsTestCase {
 
         public String getErrorMessage() {
             return errorMessage;
+        }
+    }
+
+    public static class ServiceException extends RuntimeException {
+        public ServiceException(String message) {
+            super(message);
         }
     }
 }
