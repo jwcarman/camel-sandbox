@@ -39,16 +39,15 @@ public class JmsRemotingTest extends JmsTestCase {
                         .process(new GsonSerializer(gson, Request.class))
                         .to("jms:queue:service?requestTimeout=500")
                         .process(new GsonDeserializer(gson, Response.class));
+
                 from("jms:queue:service")
-                        .onException(Exception.class).setHeader("EXCEPTION_MESSAGE", exceptionMessage()).setBody(constant("")).end()
                         .process(new GsonDeserializer(gson, Request.class))
                         .doTry()
-                        .bean(new EchoService())
-                        .process(new GsonSerializer(gson, Response.class))
+                            .bean(new EchoService())
+                            .process(new GsonSerializer(gson, Response.class))
                         .doCatch(Exception.class)
-                        .setHeader("EXCEPTION_MESSAGE", exceptionMessage()).setBody(constant(""))
-                        .end()
-                        .to("log:afterService?level=INFO&multiline=true&showAll=true");
+                            .setHeader("EXCEPTION_MESSAGE", exceptionMessage()).setBody(constant(""))
+                        .end();
             }
         };
     }
