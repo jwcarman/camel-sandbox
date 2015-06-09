@@ -18,7 +18,7 @@ public class LoggingConnectionFactory extends ActiveMQConnectionFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingConnectionFactory.class);
     private final MetricRegistry registry = new MetricRegistry();
     private final Meter connectionRate = registry.meter("connect");
-
+    private final double threshold = 10.0;
     private AtomicInteger count = new AtomicInteger();
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -46,6 +46,10 @@ public class LoggingConnectionFactory extends ActiveMQConnectionFactory {
     public Connection createConnection(String userName, String password) throws JMSException {
         LOGGER.info("createConnection({}, {})", userName, password);
         connectionRate.mark();
+        if(connectionRate.getFiveMinuteRate() > threshold) {
+            LOGGER.warn("Connection rate {} exceeds threshold {}.", connectionRate.getFiveMinuteRate(), threshold);
+
+        }
         final Connection connection = super.createConnection(userName, password);
         LOGGER.info("Returning connection {}.", count.incrementAndGet());
         return connection;
