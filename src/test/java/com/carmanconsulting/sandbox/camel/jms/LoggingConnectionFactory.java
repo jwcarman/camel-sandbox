@@ -37,6 +37,7 @@ public class LoggingConnectionFactory extends ActiveMQConnectionFactory {
     public Connection createConnection() throws JMSException {
         LOGGER.info("createConnection()");
         connectionRate.mark();
+        logThresholdViolation();
         final Connection connection = super.createConnection();
         LOGGER.info("Returning connection {}.", count.incrementAndGet());
         return connection;
@@ -46,13 +47,17 @@ public class LoggingConnectionFactory extends ActiveMQConnectionFactory {
     public Connection createConnection(String userName, String password) throws JMSException {
         LOGGER.info("createConnection({}, {})", userName, password);
         connectionRate.mark();
+        logThresholdViolation();
+        final Connection connection = super.createConnection(userName, password);
+        LOGGER.info("Returning connection {}.", count.incrementAndGet());
+        return connection;
+    }
+
+    private void logThresholdViolation() {
         if(connectionRate.getFiveMinuteRate() > threshold) {
             LOGGER.warn("Connection rate {} exceeds threshold {}.", connectionRate.getFiveMinuteRate(), threshold);
 
         }
-        final Connection connection = super.createConnection(userName, password);
-        LOGGER.info("Returning connection {}.", count.incrementAndGet());
-        return connection;
     }
 
 //----------------------------------------------------------------------------------------------------------------------
