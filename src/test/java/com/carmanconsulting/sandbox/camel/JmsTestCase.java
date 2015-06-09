@@ -14,7 +14,7 @@ public abstract class JmsTestCase extends CamelTestCase
 // Fields
 //----------------------------------------------------------------------------------------------------------------------
 
-    private ConnectionFactory connectionFactory;
+    private LoggingConnectionFactory connectionFactory;
 
 //----------------------------------------------------------------------------------------------------------------------
 // Getter/Setter Methods
@@ -29,11 +29,13 @@ public abstract class JmsTestCase extends CamelTestCase
         return connectionFactory;
     }
 
+
+
 //----------------------------------------------------------------------------------------------------------------------
 // Other Methods
 //----------------------------------------------------------------------------------------------------------------------
 
-    protected ConnectionFactory createConnectionFactory()
+    protected LoggingConnectionFactory createConnectionFactory()
     {
         return new LoggingConnectionFactory(getBrokerUrl());
     }
