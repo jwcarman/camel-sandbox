@@ -43,10 +43,9 @@ public abstract class JmsTestCase extends CamelTestCase
         final LoggingPooledConnectionFactory pooled = new LoggingPooledConnectionFactory();
         pooled.setConnectionFactory(factory);
 
-        final JmsConfiguration configuration = new JmsConfiguration(pooled);
-
+        final JmsConfiguration configuration = new JmsConfiguration(factory);
         configuration.setListenerConnectionFactory(factory);
-
+        configuration.setTemplateConnectionFactory(pooled);
 
         return configuration;
     }
