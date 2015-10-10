@@ -1,15 +1,14 @@
 package com.carmanconsulting.sandbox.camel;
 
+import javax.jms.ConnectionFactory;
+
 import com.carmanconsulting.sandbox.camel.jms.LoggingConnectionFactory;
 import com.carmanconsulting.sandbox.camel.jms.LoggingPooledConnectionFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.jms.JmsComponent;
 import org.apache.camel.component.jms.JmsConfiguration;
 
-import javax.jms.ConnectionFactory;
-
-public abstract class JmsTestCase extends CamelTestCase
-{
+public abstract class JmsTestCase extends CamelTestCase {
 //----------------------------------------------------------------------------------------------------------------------
 // Fields
 //----------------------------------------------------------------------------------------------------------------------
@@ -20,23 +19,19 @@ public abstract class JmsTestCase extends CamelTestCase
 // Getter/Setter Methods
 //----------------------------------------------------------------------------------------------------------------------
 
-    protected final ConnectionFactory getConnectionFactory()
-    {
-        if(connectionFactory == null)
-        {
+    protected final ConnectionFactory getConnectionFactory() {
+        if (connectionFactory == null) {
             connectionFactory = createConnectionFactory();
         }
         return connectionFactory;
     }
 
 
-
 //----------------------------------------------------------------------------------------------------------------------
 // Other Methods
 //----------------------------------------------------------------------------------------------------------------------
 
-    protected LoggingConnectionFactory createConnectionFactory()
-    {
+    protected LoggingConnectionFactory createConnectionFactory() {
         return new LoggingConnectionFactory(getBrokerUrl());
     }
 
@@ -57,8 +52,7 @@ public abstract class JmsTestCase extends CamelTestCase
     }
 
     @Override
-    protected void initializeCamelContext(CamelContext context)
-    {
+    protected void initializeCamelContext(CamelContext context) {
         JmsComponent jms = new JmsComponent(createJmsConfiguration());
         context.addComponent("jms", jms);
     }

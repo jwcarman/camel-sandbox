@@ -2,7 +2,7 @@ package com.carmanconsulting.sandbox.camel.jms;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.pool.ConnectionKey;
+import org.apache.activemq.jms.pool.ConnectionKey;
 import org.apache.activemq.pool.PooledConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ public class LoggingPooledConnectionFactory extends PooledConnectionFactory {
     @Override
     protected ActiveMQConnection createConnection(ConnectionKey key) throws JMSException {
         LOGGER.info("Creating new pooled connection...");
-        ActiveMQConnection connection = super.createConnection(key);
+        ActiveMQConnection connection = (ActiveMQConnection) super.createConnection(key);
         LOGGER.info("Pool size now {}", getNumConnections() + 1);
         return connection;
     }

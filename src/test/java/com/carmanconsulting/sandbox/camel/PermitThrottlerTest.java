@@ -1,30 +1,27 @@
 package com.carmanconsulting.sandbox.camel;
 
-import com.carmanconsulting.sandbox.camel.jms.LoggingPooledConnectionFactory;
-import com.google.common.collect.MapMaker;
-import org.apache.activemq.pool.PooledConnectionFactory;
-import org.apache.camel.Exchange;
-import org.apache.camel.Expression;
-import org.apache.camel.Processor;
-import org.apache.camel.Produce;
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.Service;
-import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.builder.SimpleBuilder;
-import org.apache.camel.component.jms.JmsConfiguration;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.jms.ConnectionFactory;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.jms.ConnectionFactory;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+
+import com.carmanconsulting.sandbox.camel.jms.LoggingPooledConnectionFactory;
+import com.google.common.collect.MapMaker;
+import org.apache.activemq.pool.PooledConnectionFactory;
+import org.apache.camel.*;
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.builder.SimpleBuilder;
+import org.apache.camel.component.jms.JmsConfiguration;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PermitThrottlerTest extends JmsTestCase {
 //----------------------------------------------------------------------------------------------------------------------
@@ -74,6 +71,7 @@ public class PermitThrottlerTest extends JmsTestCase {
     }
 
     @Test
+    @Ignore
     public void testThrottlingEngine() throws Exception {
         final Random random = new Random();
         final int nGroups = 10;
