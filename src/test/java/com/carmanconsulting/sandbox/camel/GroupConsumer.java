@@ -17,7 +17,7 @@ public class GroupConsumer {
 
     public static void main(String[] args) throws Exception {
         CamelContext camelContext = new DefaultCamelContext();
-        ActiveMQConnectionFactory factory = new LoggingConnectionFactory("failover:(tcp://localhost:61616)");
+        ActiveMQConnectionFactory factory = new LoggingConnectionFactory("failover:(tcp://localhost:61616)?jms.prefetchPolicy.all=1");
         PooledConnectionFactory pooled = new LoggingPooledConnectionFactory();
         pooled.setConnectionFactory(factory);
         pooled.setMaxConnections(5);
