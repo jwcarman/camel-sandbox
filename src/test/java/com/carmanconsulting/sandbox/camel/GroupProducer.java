@@ -39,7 +39,7 @@ public class GroupProducer {
                     final String groupName = Thread.currentThread().getName() + "-" + (System.currentTimeMillis() / 30000);
                     producerTemplate.sendBodyAndHeader("jms:queue:grouped_messages", ExchangePattern.InOnly, groupName, "JMSXGroupID", groupName);
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         LOGGER.error("Unable to sleep!", e);
                     }
